@@ -8,8 +8,10 @@
 namespace mp = boost::multiprecision;
 
 int main(int argc, char *argv []) {
-	
-	Polynomial t1;
+
+	std::cout << "testing random prime and random polynomial generation" << std::endl;
+	Polynomial Poly;
+	Poly.genRndPrimePoly(5);
 
 	return 0;
 }
