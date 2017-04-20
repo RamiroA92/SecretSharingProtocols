@@ -17,4 +17,7 @@ vector<string> tokenize(string com);
 //Crypto
 mp::int1024_t gcdExtended(mp::int1024_t a, mp::int1024_t b, mp::int1024_t *x, mp::int1024_t *y);
 mp::int1024_t bigInt_power(mp::int1024_t base, mp::int1024_t power);
-mp::int1024_t modLagrange(vector<Share> Shares, mp::int1024_t modulus);
+
+
+mp::int1024_t modLagrange(vector<Share> f, mp::int1024_t xi, mp::int1024_t m);
+

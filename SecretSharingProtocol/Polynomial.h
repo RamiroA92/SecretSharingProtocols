@@ -17,16 +17,17 @@ namespace mp = boost::multiprecision;
 
 class Polynomial {
 public:
+	//CONSTRUCTORS
 	Polynomial() :deg(0), coefficients(0), field(0){}
 	Polynomial(vector<mp::int1024_t> v) {
 		coefficients = v;
-		deg = coefficients.size() - 1;
+		deg = v.size() - 1;
 	}
 
 	const Polynomial & operator=(const Polynomial & rhs);
-	vector<mp::int1024_t> returnPolynomial() { return coefficients; }
 
 	//the operations to define for the Polynomial class
+	vector<mp::int1024_t> returnPolynomial() { return coefficients; }
 	Polynomial operator+(const Polynomial & secondPoly);
 	Polynomial operator*(const Polynomial & secondPoly);
 	friend ostream& operator<<(ostream& out, const Polynomial& P);
@@ -34,7 +35,14 @@ public:
 	int getDegree() { return deg; }
 	mp::int1024_t evaluate(mp::int1024_t point);
 	mp::int1024_t getField() { return field; }
-
+	vector<mp::int1024_t> getCoefficients() { return coefficients; }
+	void polySetCoefficients(vector<mp::int1024_t> v){
+		this->coefficients.clear();
+		for (unsigned i = 0; i < v.size(); i++)
+			this->coefficients.push_back(v[i]);
+	}
+	void setField(mp::int1024_t f) { field = f;}
+	void changeFreeVariable(mp::int1024_t freeVariable) { if(!coefficients.empty())coefficients[0] = freeVariable; }
 private:
 	int deg;
 	vector<mp::int1024_t> coefficients;
@@ -42,6 +50,8 @@ private:
 };
 #endif // !POLYNOMIAL
 
+
+//IMPLEMENTATION
 //FUNCTION DEFINITIONS
 //COPY CONSTRUCTOR
 const Polynomial & Polynomial::operator=(const Polynomial & rhs) {
@@ -59,7 +69,6 @@ ostream& operator<<(ostream& out, const Polynomial& P) {
 		out << P.coefficients[0];
 		for (unsigned i = 1; i < P.coefficients.size(); i++) {
 			out << " + " << P.coefficients[i] << "x^" << i;
-			;
 		}
 	}
 	return out;
@@ -112,43 +121,42 @@ Polynomial Polynomial::operator*(const Polynomial & secondPoly) {
 //Genration of random polynomial with coefficient belonging to a prime field
 Polynomial Polynomial::genRndPrimePoly(int degree){
 	BigPrime P;
-	P.generateRndPrime(128);  // this 128 does not yet have any meaning
-	mp::int1024_t field = P.getBigPrime();
+	P.generateRndPrime(512);  
+	mp::int1024_t genfield = P.getBigPrime();
 	vector<mp::int1024_t> rndCoeff(degree + 1);
 
 	//Set up of random generator
 	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count(); //source of randmoness
-	typedef boost::random::independent_bits_engine<boost::random::mt19937, 10, mp::int1024_t> generator_type;
+	typedef boost::random::independent_bits_engine<boost::random::mt19937, 128, mp::int1024_t> generator_type;
 	generator_type gen(seed);
-
+	
 	mp::int1024_t coeff = gen();
 	for (unsigned i = 0; i < rndCoeff.size(); i++) {
 		coeff = gen();
-		rndCoeff[i] = coeff % field;
+		rndCoeff[i] = coeff % genfield;
 	}
 
 	Polynomial rndPoly(rndCoeff); //create a return object.
 
 	*this = rndPoly;
-	this->field = field;
-	std::cout << "Random Polynomial Field: " << std::showbase << std::dec << field << std::endl;
-	std::cout << "Random Polynomial: " << std:: showbase << std::dec <<*this << std::endl;
+	field = genfield;
+	std::cout << "\nRandom Polynomial Field: " << std::showbase << std::dec << genfield << std::endl;
+	std::cout << "Random Polynomial: " << std:: showbase << std::dec << *this << std::endl;
 	return rndPoly;
 }
 
 //Polynomial evaluation at a given point
 mp::int1024_t Polynomial::evaluate(mp::int1024_t point) {
-	if (!this->coefficients.empty()) {
-		mp::int1024_t result = coefficients[0];
-		int index = 1;
-		for (mp::int1024_t i = 1; i < coefficients.size(); i++) {
-			result += bigInt_power(point, i) * this->coefficients[index];
-			index++;
+	mp::int1024_t result = 0;
+	if (!coefficients.empty()) {
+		result = coefficients[0];
+		mp::int1024_t exp = 1;
+		for ( unsigned i = 1; i < coefficients.size(); i++) {
+			result += bigInt_power(point, exp) * coefficients[i];
+			exp = exp + 1;
 		}
-
-		return result;
 	}
-
+	return result;
 }
 
 

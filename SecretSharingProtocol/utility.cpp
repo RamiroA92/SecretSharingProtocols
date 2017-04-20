@@ -82,46 +82,38 @@ mp::int1024_t gcdExtended(mp::int1024_t a, mp::int1024_t b, mp::int1024_t *x, mp
 	return gcd;
 }
 
-mp::int1024_t modLagrange(vector<Share> Shares, mp::int1024_t modulus)
+
+mp::int1024_t modLagrange(vector<Share> f, mp::int1024_t xi, mp::int1024_t m)
 {
 	mp::int1024_t result = 0; // Initialize result
-	mp::int1024_t xi = 0;
-	mp::int1024_t multiplicativeInverse;
-	mp::int1024_t modulusInverse;
+	mp::int1024_t inv;
+	mp::int1024_t y;
 
-	std::cout << "Laagrange received modulus of: " << modulus << std::endl;
-
-	for (int i = 0; i< Shares.size(); i++)
+	for (int i = 0; i < f.size(); i++)
 	{
-		// Compute individual terms of above formula
-		mp::int1024_t term = Shares[i].getY();
-		for (int j = 0; j<Shares.size(); j++)
+		mp::int1024_t term = f[i].y;
+		for (int j = 0; j < f.size(); j++)
 		{
 			if (j != i) {
-				mp::int1024_t denomitor = Shares[i].getX() - Shares[j].getX();
-				while (denomitor < 0) {
-					denomitor = denomitor + modulus;
+				mp::int1024_t d = f[j].x - f[i].x;
+				while (d < 0) {
+					d = d + m;
 				}
-				mp::int1024_t numerator = (xi - Shares[j].getX());
-				while (numerator < 0) {
-					numerator = numerator + modulus;
+				gcdExtended(d, m, &inv, &y);
+				while (inv < 0) {
+					inv = inv + m;
 				}
-				gcdExtended(denomitor, modulus, &multiplicativeInverse, &modulusInverse);
-				while (multiplicativeInverse < 0) {
-					multiplicativeInverse = multiplicativeInverse + modulus;
-				}
-				term = term * numerator * multiplicativeInverse;
+				term = term * f[j].x * inv;
+				term = term % m;
 			}
 		}
-
 		// Add current term to result
 		result += term;
 	}
-
 	while (result < 0)
-	{ 
-		result = result + modulus;
+	{
+		result = result + m;
 	}
-	result = result % modulus;
+	result %= m;
 	return result;
 }

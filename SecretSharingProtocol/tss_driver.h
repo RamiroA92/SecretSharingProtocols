@@ -2,7 +2,6 @@
 #include <iostream>
 #include "Polynomial.h"
 #include "TSS.h"
-#include <string>
 
 namespace mp = boost::multiprecision;
 
@@ -15,19 +14,15 @@ void tss_drive() {
 
 	Tss Protocol(threshold);
 	vector<Share> shares(threshold);
-	mp::int1024_t id = 1;
 	//Sharing phase. 
-	std::cout << "Player Shares: " << std::endl;
+	std::cout << "Lagrange Recovery: " << std::endl;
 	for (unsigned i = 0; i < shares.size(); i++) {
-		shares[i].setX(id);
-		shares[i].setY(Protocol.sharing(i+1));
-		id++;
-		std::cout << "Player id: " << shares[i].getX() << std::endl;
-		std::cout << "f(" << i+1 << ")" << " = " << shares[i].getY() << std::endl;
+		shares[i].x = i + 1;
+		shares[i].y = Protocol.sharing(i + 1);
 	}
 
 	//recovery phase
-	mp::int1024_t theSecret = Protocol.recovery(shares);
+	cout << "the secret: " << Protocol.recovery(shares, 0, Protocol.getField()) << endl;
+	
 
-	std::cout << "The secret is: " << theSecret << std::endl;
 }

@@ -18,7 +18,7 @@ namespace mp = boost::multiprecision;
 
 class BigPrime {
 public:
-	BigPrime(): bigPrime(7){ } //for testing purposes
+	BigPrime(): bigPrime(7){ } //arbitrary selected prime
 	BigPrime(int bitsize) {
 		
 		generateRndPrime(bitsize); //in future implementation possible choices 128, 256, 512 ..., but < than 1024
@@ -31,22 +31,89 @@ private:
 	mp::int1024_t BigPrime::power(mp::int1024_t x, mp::int1024_t y, mp::int1024_t p);
 	bool millerTest(mp::int1024_t d, mp::int1024_t n);
 	bool isPrime(mp::int1024_t n, mp::int1024_t k);
+	void gen128BitPrime();
+	void gen256BitPrime();
+	void gen512BitPrime();
+	void gen12BitPrime();  //Default
 };
 
-void BigPrime::generateRndPrime(int bitsize) {
-	
+
+//Implementation
+void BigPrime::gen12BitPrime() {
 	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count(); //source of randmoness
-	typedef boost::random::independent_bits_engine<boost::random::mt19937,12 , mp::int1024_t> generator_type;
+	typedef boost::random::independent_bits_engine<boost::random::mt19937, 12, mp::int1024_t> generator_type;
 	generator_type gen(seed);
-	
+
 	bool isPrime = false;
 	mp::int1024_t n = gen(); //generates random integer of a given bit size size. 
-	while(!this->isPrime(n, 1000)){
+	while (!this->isPrime(n, 1000)) {
 		n = gen();
 		std::cout << "Attempting generation of Prime: " << std::hex << std::showbase << n << std::endl;
 	}
 	std::cout << "\nPossible Prime: " << std::dec << std::showbase << n << std::endl;
 	this->bigPrime = n;
+}
+
+void BigPrime::gen128BitPrime() {
+	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count(); //source of randmoness
+	typedef boost::random::independent_bits_engine<boost::random::mt19937, 128, mp::int1024_t> generator_type;
+	generator_type gen(seed);
+
+	bool isPrime = false;
+	mp::int1024_t n = gen(); //generates random integer of a given bit size size. 
+	while (!this->isPrime(n, 1000)) {
+		n = gen();
+		std::cout << "Attempting generation of Prime: " << std::hex << std::showbase << n << std::endl;
+	}
+	std::cout << "\nPossible Prime: " << std::dec << std::showbase << n << std::endl;
+	this->bigPrime = n;
+}
+
+void BigPrime::gen256BitPrime() {
+	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count(); //source of randmoness
+	typedef boost::random::independent_bits_engine<boost::random::mt19937, 256, mp::int1024_t> generator_type;
+	generator_type gen(seed);
+
+	bool isPrime = false;
+	mp::int1024_t n = gen(); //generates random integer of a given bit size size. 
+	while (!this->isPrime(n, 1000)) {
+		n = gen();
+		std::cout << "Attempting generation of Prime: " << std::hex << std::showbase << n << std::endl;
+	}
+	std::cout << "\nPossible Prime: " << std::dec << std::showbase << n << std::endl;
+	this->bigPrime = n;
+}
+
+void BigPrime::gen512BitPrime() {
+	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count(); //source of randmoness
+	typedef boost::random::independent_bits_engine<boost::random::mt19937, 512, mp::int1024_t> generator_type;
+	generator_type gen(seed);
+
+	bool isPrime = false;
+	mp::int1024_t n = gen(); //generates random integer of a given bit size size. 
+	while (!this->isPrime(n, 1000)) {
+		n = gen();
+		std::cout << "Attempting generation of Prime: " << std::hex << std::showbase << n << std::endl;
+	}
+	std::cout << "\nPossible Prime: " << std::dec << std::showbase << n << std::endl;
+	this->bigPrime = n;
+}
+
+void BigPrime::generateRndPrime(int bitsize) {
+	if (bitsize == 128) {
+		gen128BitPrime();
+	}
+	else if(bitsize == 256) {
+		gen256BitPrime();
+	}
+	else if(bitsize == 512) {
+		gen512BitPrime();
+	}
+	else {
+		std::cout << "Default unsecure bitsize 12 was chosen: choices are 128,256,512" << std::endl;
+		gen12BitPrime();
+	}
+
 }
 
 // Utility function to do modular exponentiation.
@@ -73,7 +140,7 @@ bool BigPrime::millerTest(mp::int1024_t d, mp::int1024_t n)
 	// Pick a random number in [2..n-2]
 	// Corner cases make sure that n > 4
 	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count(); //source of randmoness
-	typedef boost::random::independent_bits_engine<boost::random::mt19937, 12, mp::int1024_t> generator_type;
+	typedef boost::random::independent_bits_engine<boost::random::mt19937, 512, mp::int1024_t> generator_type;
 	generator_type gen(seed);
 
 	mp::int1024_t a = 2 + gen() % (n - 4);
