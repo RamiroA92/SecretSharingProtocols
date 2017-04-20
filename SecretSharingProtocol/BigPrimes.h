@@ -36,15 +36,16 @@ private:
 void BigPrime::generateRndPrime(int bitsize) {
 	
 	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count(); //source of randmoness
-	typedef boost::random::independent_bits_engine<boost::random::mt19937,128 , mp::int1024_t> generator_type;
+	typedef boost::random::independent_bits_engine<boost::random::mt19937,12 , mp::int1024_t> generator_type;
 	generator_type gen(seed);
 	
 	bool isPrime = false;
 	mp::int1024_t n = gen(); //generates random integer of a given bit size size. 
 	while(!this->isPrime(n, 1000)){
 		n = gen();
-		std::cout << "Testing: " << std::hex << std::showbase << n << std::endl;
+		std::cout << "Attempting generation of Prime: " << std::hex << std::showbase << n << std::endl;
 	}
+	std::cout << "\nPossible Prime: " << std::dec << std::showbase << n << std::endl;
 	this->bigPrime = n;
 }
 
@@ -72,7 +73,7 @@ bool BigPrime::millerTest(mp::int1024_t d, mp::int1024_t n)
 	// Pick a random number in [2..n-2]
 	// Corner cases make sure that n > 4
 	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count(); //source of randmoness
-	typedef boost::random::independent_bits_engine<boost::random::mt19937, 128, mp::int1024_t> generator_type;
+	typedef boost::random::independent_bits_engine<boost::random::mt19937, 12, mp::int1024_t> generator_type;
 	generator_type gen(seed);
 
 	mp::int1024_t a = 2 + gen() % (n - 4);

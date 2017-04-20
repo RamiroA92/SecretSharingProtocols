@@ -4,14 +4,17 @@
 
 #include "BigPrimes.h"
 #include "Polynomial.h"
+#include "tss_driver.h"
 
 namespace mp = boost::multiprecision;
 
 int main(int argc, char *argv []) {
 
-	std::cout << "testing random prime and random polynomial generation" << std::endl;
-	Polynomial Poly;
-	Poly.genRndPrimePoly(5);
-
+	std::string response;
+	do {
+		tss_drive();
+		cout << "do you want to run it again?\n-> ";
+		cin >> response;
+	} while (response != "Q" && response != "q");
 	return 0;
 }

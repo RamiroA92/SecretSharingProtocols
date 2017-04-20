@@ -5,9 +5,11 @@
 /*THERE IS AN ASSUMPTION THAT THE COEFFICIENTS WILL BE SAVED IN INCREASING ORDER
 FOR EXAMPLE v<mp::int1024_t> c = {1, 0 , 3}; Poly(c)
 is a polynomial: 1 + 0x^1 + 3x^2*/
+#include <boost/math/special_functions/pow.hpp>
 #include "BigPrimes.h"
 #include <iostream>
 #include <math.h>
+#include "utility.h"
 #include <vector>
 
 using namespace std;
@@ -15,7 +17,7 @@ namespace mp = boost::multiprecision;
 
 class Polynomial {
 public:
-	Polynomial() :deg(0), coefficients(0){}
+	Polynomial() :deg(0), coefficients(0), field(0){}
 	Polynomial(vector<mp::int1024_t> v) {
 		coefficients = v;
 		deg = coefficients.size() - 1;
@@ -30,9 +32,13 @@ public:
 	friend ostream& operator<<(ostream& out, const Polynomial& P);
 	Polynomial genRndPrimePoly(int degree);
 	int getDegree() { return deg; }
+	mp::int1024_t evaluate(mp::int1024_t point);
+	mp::int1024_t getField() { return field; }
+
 private:
 	int deg;
 	vector<mp::int1024_t> coefficients;
+	mp::int1024_t field;
 };
 #endif // !POLYNOMIAL
 
@@ -106,7 +112,7 @@ Polynomial Polynomial::operator*(const Polynomial & secondPoly) {
 //Genration of random polynomial with coefficient belonging to a prime field
 Polynomial Polynomial::genRndPrimePoly(int degree){
 	BigPrime P;
-	P.generateRndPrime(128);  // this 128 does not yet take
+	P.generateRndPrime(128);  // this 128 does not yet have any meaning
 	mp::int1024_t field = P.getBigPrime();
 	vector<mp::int1024_t> rndCoeff(degree + 1);
 
@@ -124,7 +130,25 @@ Polynomial Polynomial::genRndPrimePoly(int degree){
 	Polynomial rndPoly(rndCoeff); //create a return object.
 
 	*this = rndPoly;
+	this->field = field;
 	std::cout << "Random Polynomial Field: " << std::showbase << std::dec << field << std::endl;
 	std::cout << "Random Polynomial: " << std:: showbase << std::dec <<*this << std::endl;
 	return rndPoly;
 }
+
+//Polynomial evaluation at a given point
+mp::int1024_t Polynomial::evaluate(mp::int1024_t point) {
+	if (!this->coefficients.empty()) {
+		mp::int1024_t result = coefficients[0];
+		int index = 1;
+		for (mp::int1024_t i = 1; i < coefficients.size(); i++) {
+			result += bigInt_power(point, i) * this->coefficients[index];
+			index++;
+		}
+
+		return result;
+	}
+
+}
+
+
